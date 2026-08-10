@@ -7,13 +7,13 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://vinemarketing.co.kr/daily.html</loc>
+    <loc>https://vinemarketing.co.kr/news.html</loc>
     <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://vinemarketing.co.kr/daily/post-1.html</loc>
+    <loc>https://vinemarketing.co.kr/news/post-1.html</loc>
     <lastmod>2026-08-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
