@@ -728,21 +728,9 @@ footer p{margin-bottom:5px;line-height:1.7}
           </select>
         </div>
         <div class="field">
-          <label for="route">지원 경로</label>
-          <select id="route" name="route">
-            <option value="">선택해 주세요</option>
-            <option>검색 (네이버·구글)</option>
-            <option>SNS 광고</option>
-            <option>지인 소개</option>
-            <option>채용 사이트</option>
-            <option>기타</option>
-          </select>
+          <label for="call">연락 가능한 시간</label>
+          <input type="text" id="call" name="call" placeholder="예) 평일 오후 2시 이후">
         </div>
-      </div>
-
-      <div class="field">
-        <label for="call">연락 가능한 시간</label>
-        <input type="text" id="call" name="call" placeholder="예) 평일 오후 2시 이후">
       </div>
 
       <div class="field">
@@ -873,14 +861,13 @@ document.getElementById('applyForm').addEventListener('submit', function(e){
   var data = new URLSearchParams();
   data.append('sheet', SHEET_TAB);
   data.append('_form', FORM_NAME);
-  data.append('성함', name);
-  data.append('연락처', tel);
-  data.append('출생연도', val('birth'));
-  data.append('경력', val('career'));
-  data.append('지원경로', val('route'));
-  data.append('통화가능시간', val('call'));
-  data.append('하고싶은말', val('memo'));
-  data.append('유입페이지', location.pathname + location.search);
+  data.append('name',     name);
+  data.append('phone',    tel);
+  data.append('birth',    val('birth'));
+  data.append('career',   val('career'));
+  data.append('calltime', val('call'));
+  data.append('memo',     val('memo'));
+  data.append('page',     location.pathname + location.search);
 
   // Apps Script 는 응답을 읽을 수 없어(no-cors) 전송 후 바로 안내합니다.
   fetch(ENDPOINT, { method:'POST', mode:'no-cors', body:data })
