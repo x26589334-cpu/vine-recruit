@@ -834,57 +834,79 @@ phone.addEventListener('input', function(){
   else phone.value = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7);
 });
 
-// 지원서 전송
-// ✏️수정: 아래 ENDPOINT 를 실제 수신 주소로 바꾸세요.
-//   - Formspree  : 'https://formspree.io/f/xxxxxxxx'
-//   - 구글 스프레드시트 : Apps Script 웹앱 URL
-//   비워 두면 메일 앱이 열리는 방식으로 동작합니다.
+// ─────────────────────────────────────────────
+// 지원서 전송 → 구글 스프레드시트
+// ✏️ ENDPOINT 에 Apps Script 웹앱 URL 을 붙여넣으세요.
+//    (Apps Script → 배포 → 새 배포 → 웹 앱 → URL 복사)
+//    비워 두면 메일 앱이 열리는 방식으로 동작합니다.
+// ─────────────────────────────────────────────
 var ENDPOINT = '';
 var RECRUIT_EMAIL = 'recruit@example.com'; // ✏️수정
+var RECRUIT_TEL = '010-6832-1994';
 
 document.getElementById('applyForm').addEventListener('submit', function(e){
   e.preventDefault();
-  var f = e.target, msg = document.getElementById('formMsg');
-  var name = f.name.value.trim(), tel = f.phone.value.trim();
+  var f = e.target,
+      msg = document.getElementById('formMsg'),
+      btn = f.querySelector('button[type="submit"]');
+  var name = f.elements['name'].value.trim(), tel = f.elements['phone'].value.trim();
 
   function show(text, ok){
     msg.textContent = text;
     msg.style.color = ok ? '#0d9488' : '#e5484d';
     msg.style.display = 'block';
   }
-  if (!name)  return show('성함을 입력해 주세요.', false);
+  function unlock(){
+    btn.disabled = false;
+    btn.style.opacity = '';
+    btn.textContent = '지원서 보내기';
+  }
+
+  if (!name) return show('성함을 입력해 주세요.', false);
   if (tel.replace(/[^0-9]/g,'').length < 10) return show('연락처를 정확히 입력해 주세요.', false);
   if (!document.getElementById('agree').checked) return show('개인정보 수집·이용에 동의해 주세요.', false);
 
   var data = {
     성함: name,
-    출생연도: f.birth.value,
+    출생연도: f.elements['birth'].value.trim(),
     연락처: tel,
-    경력: f.career.value,
-    지원경로: f.route.value,
-    통화가능시간: f.call.value,
-    하고싶은말: f.memo.value
+    경력: f.elements['career'].value,
+    지원경로: f.elements['route'].value,
+    통화가능시간: f.elements['call'].value.trim(),
+    하고싶은말: f.elements['memo'].value.trim(),
+    유입페이지: location.href
   };
 
-  if (ENDPOINT){
-    fetch(ENDPOINT, {
-      method:'POST',
-      headers:{'Content-Type':'application/json', 'Accept':'application/json'},
-      body: JSON.stringify(data)
-    }).then(function(r){
-      if (!r.ok) throw new Error();
-      f.reset();
-      show('지원서가 접수되었습니다. 영업일 1~2일 내 연락드리겠습니다.', true);
-    }).catch(function(){
-      show('전송에 실패했습니다. 010-6832-1994 로 연락 주세요.', false);
-    });
-  } else {
+  if (!ENDPOINT){
     var body = Object.keys(data).map(function(k){ return k + ' : ' + (data[k] || '-'); }).join('\n');
     location.href = 'mailto:' + RECRUIT_EMAIL
       + '?subject=' + encodeURIComponent('[채용 지원] ' + name)
       + '&body=' + encodeURIComponent(body);
-    show('메일 앱이 열립니다. 전송 버튼을 눌러 주세요.', true);
+    return show('메일 앱이 열립니다. 전송 버튼을 눌러 주세요.', true);
   }
+
+  btn.disabled = true;
+  btn.style.opacity = '.6';
+  btn.textContent = '보내는 중...';
+  show('접수하는 중입니다...', true);
+
+  // Content-Type 을 text/plain 으로 보내야 Apps Script 가 사전 요청(preflight) 없이 받습니다.
+  fetch(ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(data)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(res){
+    if (!res || !res.ok) throw new Error(res && res.error ? res.error : 'unknown');
+    f.reset();
+    unlock();
+    show('지원서가 접수되었습니다. 1~2일 내 연락드리겠습니다.', true);
+  })
+  .catch(function(){
+    unlock();
+    show('전송에 실패했습니다. ' + RECRUIT_TEL + ' 로 연락 주세요.', false);
+  });
 });
 </script>
 </body>
