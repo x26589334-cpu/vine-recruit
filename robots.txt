@@ -1,7 +1,0 @@
-User-agent: *
-Allow: /
-
-User-agent: Yeti
-Allow: /
-
-Sitemap: https://vinemarketing.co.kr/sitemap.xml
